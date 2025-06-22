@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💰 Tap to Win - Professional Clicker Game</title>
+    <link rel="icon" type="image/png" href="generated-icon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+            position: relative;
+            overflow-x: hidden;
+            font-feature-settings: 'cv11', 'ss01';
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="0.5" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="0.3" fill="rgba(255,255,255,0.05)"/><circle cx="40" cy="80" r="0.4" fill="rgba(255,255,255,0.08)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .header-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            letter-spacing: -0.025em;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .stats-toggle {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+        }
+
+        .stats-toggle:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .connection-status {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #4CAF50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.6);
+            animation: pulse 2s infinite;
+        }
+
+        .connection-status.offline {
+            background: #ff5722;
+            box-shadow: 0 0 8px rgba(255, 87, 34, 0.6);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 32px;
+            padding: 56px 40px;
+            text-align: center;
+            box-shadow: 0 32px 64px rgba(0, 0, 0, 0.25), 
+                        0 0 0 1px rgba(255, 255, 255, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            max-width: 480px;
+            width: 100%;
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            margin-top: 90px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+        }
+
+        .title {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 36px;
+            color: white;
+            text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stats-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+        }
+
+        .stats-panel.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .money-display {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+            color: white;
+            padding: 32px 28px;
+            border-radius: 24px;
+            margin-bottom: 36px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2),
+                        0 0 0 1px rgba(255, 255, 255, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .money-display::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            animation: shimmer 4s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .money-label {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            opacity: 0.85;
+            font-weight: 500;
+            letter-spacing: 0.025em;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+
+        .money-amount {
+            font-size: 3.2rem;
+            font-weight: 700;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+        }
+
+        .achievements-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+        }
+
+        .achievements-panel.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        .achievement {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid transparent;
+        }
+
+        .achievement.unlocked {
+            background: rgba(76, 175, 80, 0.2);
+            border-left-color: #4CAF50;
+        }
+
+        .achievement-icon {
+            font-size: 1.5rem;
+            margin-right: 12px;
+            opacity: 0.5;
+        }
+
+        .achievement.unlocked .achievement-icon {
+            opacity: 1;
+        }
+
+        .achievement-text {
+            flex: 1;
+            text-align: left;
+        }
+
+        .achievement-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 2px;
+            color: #2c3e50;
+        }
+
+        .achievement-desc {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            color: #666;
+        }
+
+        .power-ups {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .power-up {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .power-up:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .power-up.active {
+            background: rgba(76, 175, 80, 0.3);
+            border-color: #4CAF50;
+        }
+
+        .power-up-icon {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .power-up-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #2c3e50;
+        }
+
+        .power-up-cost {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            color: #666;
+        }
+
+        .tap-button {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 28px 48px;
+            font-size: 1.7rem;
+            font-weight: 600;
+            border-radius: 28px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2),
+                        0 0 0 1px rgba(255, 255, 255, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transform: translateY(0);
+            min-width: 320px;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            letter-spacing: -0.01em;
+        }
+
+        .tap-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.6), rgba(69, 160, 73, 0.6));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            border-radius: 26px;
+        }
+
+        .tap-button:hover::before {
+            opacity: 1;
+        }
+
+        .tap-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25),
+                        0 0 0 1px rgba(255, 255, 255, 0.15),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .tap-button:active {
+            transform: translateY(0px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .tap-button span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .tap-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(76, 175, 80, 0.4);
+            background: linear-gradient(135deg, #5CBF60 0%, #4CAF50 100%);
+        }
+
+        .tap-button:active {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .tap-button:focus {
+            outline: none;
+            box-shadow: 0 15px 35px rgba(76, 175, 80, 0.4), 0 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+
+        /* Click animation */
+        .tap-button.clicked {
+            animation: clickPulse 0.3s ease;
+        }
+
+        @keyframes clickPulse {
+            0% { transform: scale(1) translateY(-3px); }
+            50% { transform: scale(0.95) translateY(-1px); }
+            100% { transform: scale(1) translateY(-3px); }
+        }
+
+        /* Money increment animation */
+        .money-amount.increment {
+            animation: moneyPulse 0.5s ease;
+        }
+
+        @keyframes moneyPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); color: #FFD700; }
+            100% { transform: scale(1); }
+        }
+
+        .floating-numbers {
+            position: absolute;
+            pointer-events: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #4CAF50;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+            animation: floatUp 2s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { 
+                opacity: 1; 
+                transform: translateY(0px) scale(1); 
+            }
+            100% { 
+                opacity: 0; 
+                transform: translateY(-100px) scale(1.2); 
+            }
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            padding: 20px 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
+            text-align: center;
+            color: white;
+            font-size: 0.9rem;
+            z-index: 100;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .footer-content {
+            font-weight: 500;
+            opacity: 0.9;
+            margin-bottom: 12px;
+            letter-spacing: 0.025em;
+        }
+
+        .footer-buttons {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .reset-button, .leaderboard-button {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            letter-spacing: 0.025em;
+        }
+
+        .reset-button:hover {
+            background: rgba(255, 87, 87, 0.2);
+            border-color: rgba(255, 87, 87, 0.4);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 87, 87, 0.3);
+        }
+
+        .leaderboard-button:hover {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: rgba(255, 215, 0, 0.4);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            .container {
+                background: rgba(255, 255, 255, 0.06);
+            }
+            
+            .money-display {
+                background: linear-gradient(135deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 100%);
+            }
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* High contrast mode */
+        @media (prefers-contrast: high) {
+            .container {
+                border-width: 2px;
+                border-color: rgba(255, 255, 255, 0.5);
+            }
+            
+            .tap-button {
+                border-width: 3px;
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 640px) {
+            .container {
+                padding: 48px 32px;
+                margin: 16px;
+                margin-top: 90px;
+                margin-bottom: 100px;
+                border-radius: 28px;
+            }
+            
+            .title {
+                font-size: 2.4rem;
+                margin-bottom: 32px;
+            }
+            
+            .money-amount {
+                font-size: 2.8rem;
+            }
+            
+            .tap-button {
+                padding: 24px 40px;
+                font-size: 1.5rem;
+                min-width: 280px;
+                border-radius: 24px;
+            }
+
+            .power-ups {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .header {
+                padding: 16px 20px;
+            }
+
+            .header-title {
+                font-size: 1.2rem;
+            }
+
+            .stats-toggle {
+                padding: 8px 14px;
+                font-size: 0.85rem;
+            }
+
+            .footer {
+                padding: 18px 20px;
+            }
+
+            .footer-buttons {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .reset-button, .leaderboard-button {
+                min-width: 140px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 40px 28px;
+                margin: 12px;
+                margin-top: 80px;
+                margin-bottom: 90px;
+            }
+            
+            .title {
+                font-size: 2.2rem;
+                margin-bottom: 28px;
+            }
+            
+            .money-amount {
+                font-size: 2.6rem;
+            }
+            
+            .tap-button {
+                padding: 22px 36px;
+                font-size: 1.4rem;
+                min-width: 260px;
+            }
+
+            .header-brand {
+                gap: 8px;
+            }
+
+            .brand-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .title {
+                font-size: 1.8rem;
+            }
+            
+            .money-amount {
+                font-size: 2.2rem;
+            }
+            
+            .tap-button {
+                padding: 16px 30px;
+                font-size: 1.2rem;
+                min-width: 200px;
+            }
+        }
+
+        /* Prevent text selection on mobile */
+        .container {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-brand">
+            <div class="brand-icon">💰</div>
+            <div class="header-title">Tap to Win Pro</div>
+        </div>
+        <div class="header-actions">
+            <div class="connection-status" id="connectionStatus" title="Server Connection"></div>
+            <button class="stats-toggle" id="statsToggle">Stats</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1 class="title">💰 Tap to Win 💰</h1>
+        
+        <div class="stats-panel" id="statsPanel">
+            <div class="stat-item">
+                <span class="stat-label">Total Clicks</span>
+                <span class="stat-value" id="totalClicks">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Click Rate (per min)</span>
+                <span class="stat-value" id="clickRate">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Session Time</span>
+                <span class="stat-value" id="sessionTime">0m 0s</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Best Streak</span>
+                <span class="stat-value" id="bestStreak">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Global Rank</span>
+                <span class="stat-value" id="globalRank">--</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Money per Click</span>
+                <span class="stat-value" id="moneyPerClick">₹10</span>
+            </div>
+        </div>
+
+        <div class="achievements-panel" id="achievementsPanel">
+            <div class="achievement" id="achievement1">
+                <span class="achievement-icon">🥉</span>
+                <div class="achievement-text">
+                    <div class="achievement-title">First Steps</div>
+                    <div class="achievement-desc">Make your first ₹100</div>
+                </div>
+            </div>
+            <div class="achievement" id="achievement2">
+                <span class="achievement-icon">🥈</span>
+                <div class="achievement-text">
+                    <div class="achievement-title">Getting Rich</div>
+                    <div class="achievement-desc">Reach ₹1,000</div>
+                </div>
+            </div>
+            <div class="achievement" id="achievement3">
+                <span class="achievement-icon">🥇</span>
+                <div class="achievement-text">
+                    <div class="achievement-title">Millionaire</div>
+                    <div class="achievement-desc">Earn ₹10,000</div>
+                </div>
+            </div>
+            <div class="achievement" id="achievement4">
+                <span class="achievement-icon">💎</span>
+                <div class="achievement-text">
+                    <div class="achievement-title">Click Master</div>
+                    <div class="achievement-desc">Click 1,000 times</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="money-display">
+            <div class="money-label">Total Earnings</div>
+            <div class="money-amount" id="moneyAmount">₹0</div>
+        </div>
+
+        <div class="power-ups">
+            <div class="power-up" id="powerUp1" data-cost="500" data-multiplier="2">
+                <span class="power-up-icon">⚡</span>
+                <div class="power-up-name">Double Tap</div>
+                <div class="power-up-cost">₹500</div>
+            </div>
+            <div class="power-up" id="powerUp2" data-cost="2000" data-multiplier="5">
+                <span class="power-up-icon">🚀</span>
+                <div class="power-up-name">Super Boost</div>
+                <div class="power-up-cost">₹2,000</div>
+            </div>
+            <div class="power-up" id="powerUp3" data-cost="10000" data-multiplier="10">
+                <span class="power-up-icon">💫</span>
+                <div class="power-up-name">Mega Power</div>
+                <div class="power-up-cost">₹10,000</div>
+            </div>
+            <div class="power-up" id="powerUp4" data-cost="50000" data-multiplier="25">
+                <span class="power-up-icon">👑</span>
+                <div class="power-up-name">Royal Touch</div>
+                <div class="power-up-cost">₹50,000</div>
+            </div>
+        </div>
+        
+        <button class="tap-button" id="tapButton">
+            <span>Tap to Earn ₹<span id="earnAmount">10</span></span>
+        </button>
+    </div>
+
+    <div class="footer">
+        <div class="footer-content">Tap to Win Pro - Professional Clicker Experience</div>
+        <div class="footer-buttons">
+            <button class="reset-button" id="resetButton">Reset Progress</button>
+            <button class="leaderboard-button" id="leaderboardButton">🏆 Leaderboard</button>
+        </div>
+    </div>
+
+    <!-- Leaderboard Modal -->
+    <div id="leaderboardModal" style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 10000;
+        backdrop-filter: blur(10px);
+    ">
+        <div style="
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        ">
+            <h2 style="margin-top: 0; text-align: center; color: #2c3e50;">🏆 Leaderboard</h2>
+            <div id="leaderboardContent" style="margin: 20px 0;">
+                Loading...
+            </div>
+            <button onclick="closeLeaderboard()" style="
+                width: 100%;
+                padding: 10px;
+                background: #667eea;
+                color: white;
+                border: none;
+                border-radius: 10px;
+                cursor: pointer;
+                font-size: 1rem;
+            ">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let totalMoney = 0;
+        let baseEarnPerClick = 10;
+        let currentMultiplier = 1;
+        let totalClicks = 0;
+        let clickStreak = 0;
+        let bestStreak = 0;
+        let sessionStartTime = Date.now();
+        let clickTimes = [];
+        let ownedPowerUps = new Set();
+        let achievements = new Set();
+        let playerId = localStorage.getItem('tapToWinPlayerId') || generatePlayerId();
+        let lastSaveTime = 0;
+
+        // DOM elements
+        const moneyAmountElement = document.getElementById('moneyAmount');
+        const tapButton = document.getElementById('tapButton');
+        const earnAmountElement = document.getElementById('earnAmount');
+        const statsToggle = document.getElementById('statsToggle');
+        const statsPanel = document.getElementById('statsPanel');
+        const achievementsPanel = document.getElementById('achievementsPanel');
+        const totalClicksElement = document.getElementById('totalClicks');
+        const clickRateElement = document.getElementById('clickRate');
+        const sessionTimeElement = document.getElementById('sessionTime');
+        const bestStreakElement = document.getElementById('bestStreak');
+        const globalRankElement = document.getElementById('globalRank');
+        const moneyPerClickElement = document.getElementById('moneyPerClick');
+        const resetButton = document.getElementById('resetButton');
+
+        // Power-up elements
+        const powerUps = document.querySelectorAll('.power-up');
+        
+        // Generate unique player ID
+        function generatePlayerId() {
+            const id = 'player_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+            localStorage.setItem('tapToWinPlayerId', id);
+            return id;
+        }
+
+        // API functions
+        async function loadGameFromServer() {
+            try {
+                const response = await fetch(`/api/player/${playerId}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    totalMoney = data.total_money || 0;
+                    totalClicks = data.total_clicks || 0;
+                    bestStreak = data.best_streak || 0;
+                    ownedPowerUps = new Set(data.owned_power_ups || []);
+                    achievements = new Set(data.achievements || []);
+                    updateAllDisplays();
+                    updatePowerUpStates();
+                    updateAchievements();
+                    return true;
+                }
+            } catch (error) {
+                console.error('Failed to load game from server:', error);
+                return false;
+            }
+            return false;
+        }
+
+        async function saveGameToServer() {
+            try {
+                const data = {
+                    total_money: totalMoney,
+                    total_clicks: totalClicks,
+                    best_streak: bestStreak,
+                    owned_power_ups: Array.from(ownedPowerUps),
+                    achievements: Array.from(achievements)
+                };
+
+                const response = await fetch(`/api/player/${playerId}/save`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    lastSaveTime = Date.now();
+                    return true;
+                }
+            } catch (error) {
+                console.error('Failed to save game to server:', error);
+            }
+            return false;
+        }
+
+        // Load saved game data (fallback to localStorage if server fails)
+        async function loadGame() {
+            const serverLoaded = await loadGameFromServer();
+            updateConnectionStatus(serverLoaded);
+            
+            if (!serverLoaded) {
+                // Fallback to localStorage
+                const savedData = localStorage.getItem('tapToWinProData');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    totalMoney = data.totalMoney || 0;
+                    totalClicks = data.totalClicks || 0;
+                    bestStreak = data.bestStreak || 0;
+                    ownedPowerUps = new Set(data.ownedPowerUps || []);
+                    achievements = new Set(data.achievements || []);
+                    updateAllDisplays();
+                    updatePowerUpStates();
+                    updateAchievements();
+                    
+                    // Try to migrate to server
+                    await saveGameToServer();
+                }
+            }
+        }
+
+        // Save game data (try server first, fallback to localStorage)
+        async function saveGame() {
+            const serverSaved = await saveGameToServer();
+            updateConnectionStatus(serverSaved);
+            
+            if (!serverSaved) {
+                // Fallback to localStorage
+                const data = {
+                    totalMoney,
+                    totalClicks,
+                    bestStreak,
+                    ownedPowerUps: Array.from(ownedPowerUps),
+                    achievements: Array.from(achievements)
+                };
+                localStorage.setItem('tapToWinProData', JSON.stringify(data));
+            }
+        }
+
+        // Update connection status indicator
+        function updateConnectionStatus(isConnected) {
+            const status = document.getElementById('connectionStatus');
+            if (isConnected) {
+                status.classList.remove('offline');
+                status.title = 'Connected to server';
+            } else {
+                status.classList.add('offline');
+                status.title = 'Offline mode - using local storage';
+            }
+        }
+
+        // Format money with Indian numbering system
+        function formatMoney(amount) {
+            return '₹' + amount.toLocaleString('en-IN');
+        }
+
+        // Calculate current earnings per click
+        function getCurrentEarnings() {
+            let multiplier = 1;
+            ownedPowerUps.forEach(powerUpId => {
+                const powerUp = document.getElementById(powerUpId);
+                multiplier *= parseInt(powerUp.dataset.multiplier);
+            });
+            return baseEarnPerClick * multiplier;
+        }
+
+        // Update all displays
+        function updateAllDisplays() {
+            moneyAmountElement.textContent = formatMoney(totalMoney);
+            earnAmountElement.textContent = getCurrentEarnings();
+            totalClicksElement.textContent = totalClicks.toLocaleString();
+            bestStreakElement.textContent = bestStreak;
+            moneyPerClickElement.textContent = formatMoney(getCurrentEarnings());
+            
+            // Update session time
+            const sessionDuration = Math.floor((Date.now() - sessionStartTime) / 1000);
+            const minutes = Math.floor(sessionDuration / 60);
+            const seconds = sessionDuration % 60;
+            sessionTimeElement.textContent = `${minutes}m ${seconds}s`;
+            
+            // Calculate click rate
+            const recentClicks = clickTimes.filter(time => Date.now() - time < 60000);
+            clickRateElement.textContent = recentClicks.length;
+        }
+
+        // Get player rank from server
+        async function updatePlayerRank() {
+            try {
+                const response = await fetch(`/api/player/${playerId}/rank`);
+                if (response.ok) {
+                    const data = await response.json();
+                    globalRankElement.textContent = `#${data.rank} (${data.percentile}%)`;
+                } else {
+                    globalRankElement.textContent = '--';
+                }
+            } catch (error) {
+                globalRankElement.textContent = '--';
+            }
+        }
+
+        // Create floating number animation
+        function createFloatingNumber(amount) {
+            const floatingDiv = document.createElement('div');
+            floatingDiv.className = 'floating-numbers';
+            floatingDiv.textContent = `+${formatMoney(amount)}`;
+            
+            const rect = tapButton.getBoundingClientRect();
+            floatingDiv.style.left = rect.left + rect.width / 2 + 'px';
+            floatingDiv.style.top = rect.top + 'px';
+            floatingDiv.style.position = 'fixed';
+            floatingDiv.style.zIndex = '1000';
+            
+            document.body.appendChild(floatingDiv);
+            
+            setTimeout(() => {
+                document.body.removeChild(floatingDiv);
+            }, 2000);
+        }
+
+        // Check and unlock achievements
+        function checkAchievements() {
+            const achievementChecks = [
+                { id: 'achievement1', condition: totalMoney >= 100 },
+                { id: 'achievement2', condition: totalMoney >= 1000 },
+                { id: 'achievement3', condition: totalMoney >= 10000 },
+                { id: 'achievement4', condition: totalClicks >= 1000 }
+            ];
+
+            achievementChecks.forEach(({ id, condition }) => {
+                if (condition && !achievements.has(id)) {
+                    achievements.add(id);
+                    document.getElementById(id).classList.add('unlocked');
+                    showNotification(`Achievement Unlocked: ${document.getElementById(id).querySelector('.achievement-title').textContent}`);
+                }
+            });
+        }
+
+        // Update achievement display
+        function updateAchievements() {
+            achievements.forEach(id => {
+                document.getElementById(id).classList.add('unlocked');
+            });
+        }
+
+        // Show notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(76, 175, 80, 0.9);
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                font-weight: bold;
+                z-index: 10000;
+                animation: slideInRight 0.3s ease;
+                backdrop-filter: blur(10px);
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOutRight 0.3s ease';
+                setTimeout(() => document.body.removeChild(notification), 300);
+            }, 3000);
+        }
+
+        // Update power-up states
+        function updatePowerUpStates() {
+            powerUps.forEach(powerUp => {
+                const cost = parseInt(powerUp.dataset.cost);
+                const id = powerUp.id;
+                
+                if (ownedPowerUps.has(id)) {
+                    powerUp.classList.add('active');
+                    powerUp.style.opacity = '0.7';
+                    powerUp.style.cursor = 'default';
+                } else if (totalMoney >= cost) {
+                    powerUp.style.opacity = '1';
+                    powerUp.style.cursor = 'pointer';
+                } else {
+                    powerUp.style.opacity = '0.5';
+                    powerUp.style.cursor = 'not-allowed';
+                }
+            });
+        }
+
+        // Handle power-up purchase
+        function buyPowerUp(powerUpElement) {
+            const cost = parseInt(powerUpElement.dataset.cost);
+            const id = powerUpElement.id;
+            
+            if (totalMoney >= cost && !ownedPowerUps.has(id)) {
+                totalMoney -= cost;
+                ownedPowerUps.add(id);
+                updateAllDisplays();
+                updatePowerUpStates();
+                saveGame();
+                
+                const name = powerUpElement.querySelector('.power-up-name').textContent;
+                showNotification(`Purchased: ${name}`);
+            }
+        }
+
+        // Performance tracking
+        let performanceMetrics = {
+            averageClickDelay: 0,
+            clickAccuracy: 100,
+            totalSessionTime: 0,
+            clicksPerMinute: 0,
+            efficiencyScore: 0
+        };
+
+        // Handle tap/click with performance tracking
+        function handleTap() {
+            const tapTime = Date.now();
+            const earnings = getCurrentEarnings();
+            
+            // Performance tracking
+            if (clickTimes.length > 0) {
+                const lastClickTime = clickTimes[clickTimes.length - 1];
+                const clickDelay = tapTime - lastClickTime;
+                performanceMetrics.averageClickDelay = 
+                    (performanceMetrics.averageClickDelay * (clickTimes.length - 1) + clickDelay) / clickTimes.length;
+            }
+            
+            // Increase money and stats
+            totalMoney += earnings;
+            totalClicks++;
+            clickStreak++;
+            clickTimes.push(tapTime);
+            
+            // Update best streak
+            if (clickStreak > bestStreak) {
+                bestStreak = clickStreak;
+                showMilestoneNotification(`New Best Streak: ${bestStreak}!`, '🔥');
+            }
+            
+            // Check for milestone achievements
+            checkMilestones();
+            
+            // Clean old click times (older than 1 minute)
+            clickTimes = clickTimes.filter(time => Date.now() - time < 60000);
+            
+            // Visual effects with enhanced animations
+            createFloatingNumber(earnings);
+            createClickRipple();
+            
+            // Update displays with animation
+            moneyAmountElement.classList.remove('increment');
+            void moneyAmountElement.offsetWidth;
+            moneyAmountElement.classList.add('increment');
+            
+            tapButton.classList.remove('clicked');
+            void tapButton.offsetWidth;
+            tapButton.classList.add('clicked');
+            
+            updateAllDisplays();
+            updatePowerUpStates();
+            checkAchievements();
+            saveGame();
+            
+            // Enhanced haptic feedback
+            if (navigator.vibrate) {
+                const pattern = earnings > 100 ? [30, 10, 30] : [30];
+                navigator.vibrate(pattern);
+            }
+        }
+
+        // Create click ripple effect
+        function createClickRipple() {
+            const ripple = document.createElement('div');
+            ripple.style.cssText = `
+                position: absolute;
+                border-radius: 50%;
+                background: rgba(76, 175, 80, 0.3);
+                transform: scale(0);
+                animation: ripple 0.6s linear;
+                pointer-events: none;
+                z-index: 1000;
+                width: 100px;
+                height: 100px;
+                left: 50%;
+                top: 50%;
+                margin-left: -50px;
+                margin-top: -50px;
+            `;
+            
+            tapButton.appendChild(ripple);
+            
+            setTimeout(() => {
+                tapButton.removeChild(ripple);
+            }, 600);
+        }
+
+        // Check for milestones
+        function checkMilestones() {
+            const milestones = [
+                { threshold: 100, message: 'First Hundred!', icon: '💯' },
+                { threshold: 500, message: 'Click Warrior!', icon: '⚔️' },
+                { threshold: 1000, message: 'Click Master!', icon: '🏆' },
+                { threshold: 2500, message: 'Click Legend!', icon: '🌟' },
+                { threshold: 5000, message: 'Click Deity!', icon: '👑' }
+            ];
+
+            const currentMilestone = milestones.find(m => 
+                totalClicks === m.threshold
+            );
+
+            if (currentMilestone) {
+                showMilestoneNotification(currentMilestone.message, currentMilestone.icon);
+            }
+        }
+
+        // Show milestone notification
+        function showMilestoneNotification(message, icon) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) scale(0);
+                background: linear-gradient(135deg, rgba(255, 215, 0, 0.95), rgba(255, 193, 7, 0.95));
+                color: #333;
+                padding: 24px 32px;
+                border-radius: 20px;
+                font-weight: bold;
+                font-size: 1.4rem;
+                z-index: 10001;
+                animation: milestonePopup 2s ease;
+                backdrop-filter: blur(20px);
+                border: 2px solid rgba(255, 215, 0, 0.5);
+                box-shadow: 0 20px 40px rgba(255, 215, 0, 0.3);
+                text-align: center;
+                min-width: 200px;
+            `;
+            notification.innerHTML = `<div style="font-size: 2rem; margin-bottom: 8px;">${icon}</div>${message}`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => document.body.removeChild(notification), 2000);
+        }
+
+        // Reset streak on inactivity
+        let inactivityTimer;
+        function resetStreakTimer() {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(() => {
+                clickStreak = 0;
+            }, 5000); // Reset after 5 seconds of inactivity
+        }
+
+        // Toggle stats panel
+        function toggleStats() {
+            const isStatsVisible = statsPanel.classList.contains('show');
+            
+            // Hide both panels first
+            statsPanel.classList.remove('show');
+            achievementsPanel.classList.remove('show');
+            
+            if (!isStatsVisible) {
+                if (statsToggle.textContent === 'Stats') {
+                    statsPanel.classList.add('show');
+                    statsToggle.textContent = 'Achievements';
+                } else {
+                    achievementsPanel.classList.add('show');
+                    statsToggle.textContent = 'Hide';
+                }
+            } else {
+                if (statsToggle.textContent === 'Achievements') {
+                    achievementsPanel.classList.add('show');
+                    statsToggle.textContent = 'Hide';
+                } else {
+                    statsToggle.textContent = 'Stats';
+                }
+            }
+        }
+
+        // Reset game
+        async function resetGame() {
+            if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+                try {
+                    const response = await fetch(`/api/player/${playerId}/reset`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        localStorage.removeItem('tapToWinProData');
+                        location.reload();
+                    } else {
+                        throw new Error('Server reset failed');
+                    }
+                } catch (error) {
+                    console.error('Failed to reset on server, clearing local data:', error);
+                    localStorage.removeItem('tapToWinProData');
+                    location.reload();
+                }
+            }
+        }
+
+        // Event listeners
+        tapButton.addEventListener('click', () => {
+            handleTap();
+            resetStreakTimer();
+        });
+
+        // Touch events
+        tapButton.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+        });
+
+        tapButton.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            handleTap();
+            resetStreakTimer();
+        });
+
+        // Power-up event listeners
+        powerUps.forEach(powerUp => {
+            powerUp.addEventListener('click', () => buyPowerUp(powerUp));
+        });
+
+        // Leaderboard functions
+        async function showLeaderboard() {
+            const modal = document.getElementById('leaderboardModal');
+            const content = document.getElementById('leaderboardContent');
+            
+            modal.style.display = 'block';
+            content.innerHTML = 'Loading...';
+            
+            try {
+                const response = await fetch('/api/leaderboard');
+                if (response.ok) {
+                    const data = await response.json();
+                    const leaderboard = data.leaderboard;
+                    
+                    if (leaderboard.length === 0) {
+                        content.innerHTML = '<p style="text-align: center; color: #666;">No players yet. Be the first!</p>';
+                        return;
+                    }
+                    
+                    let html = '<div style="display: flex; flex-direction: column; gap: 10px;">';
+                    leaderboard.forEach((player, index) => {
+                        const isCurrentPlayer = player.player_id === playerId;
+                        const rankEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅';
+                        
+                        html += `
+                            <div style="
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                padding: 12px;
+                                border-radius: 10px;
+                                background: ${isCurrentPlayer ? 'rgba(76, 175, 80, 0.2)' : 'rgba(255, 255, 255, 0.5)'};
+                                border: 1px solid ${isCurrentPlayer ? '#4CAF50' : 'rgba(255, 255, 255, 0.3)'};
+                            ">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <span style="font-size: 1.2rem;">${rankEmoji}</span>
+                                    <div>
+                                        <div style="font-weight: 600; color: #2c3e50;">
+                                            ${isCurrentPlayer ? 'You' : `Player ${player.rank}`}
+                                        </div>
+                                        <div style="font-size: 0.8rem; color: #666;">
+                                            ${player.total_clicks.toLocaleString()} clicks
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-weight: bold; color: #2c3e50;">
+                                        ${formatMoney(player.total_money)}
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #666;">
+                                        Best: ${player.best_streak}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    
+                    content.innerHTML = html;
+                } else {
+                    throw new Error('Failed to load leaderboard');
+                }
+            } catch (error) {
+                console.error('Failed to load leaderboard:', error);
+                content.innerHTML = '<p style="text-align: center; color: #ff5757;">Failed to load leaderboard. Try again later.</p>';
+            }
+        }
+
+        function closeLeaderboard() {
+            document.getElementById('leaderboardModal').style.display = 'none';
+        }
+
+        // UI event listeners
+        statsToggle.addEventListener('click', toggleStats);
+        resetButton.addEventListener('click', resetGame);
+        document.getElementById('leaderboardButton').addEventListener('click', showLeaderboard);
+        
+        // Close leaderboard when clicking outside
+        document.getElementById('leaderboardModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLeaderboard();
+            }
+        });
+
+        // Animation cleanup
+        moneyAmountElement.addEventListener('animationend', function() {
+            this.classList.remove('increment');
+        });
+
+        tapButton.addEventListener('animationend', function() {
+            this.classList.remove('clicked');
+        });
+
+        // Keyboard support
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space' || e.code === 'Enter') {
+                e.preventDefault();
+                handleTap();
+                resetStreakTimer();
+            }
+        });
+
+        // Initialize game
+        window.addEventListener('load', async function() {
+            await loadGame();
+            resetStreakTimer();
+            
+            // Update displays every second
+            setInterval(updateAllDisplays, 1000);
+            
+            // Update player rank every 30 seconds
+            setInterval(updatePlayerRank, 30000);
+            updatePlayerRank(); // Initial load
+            
+            // Auto-save every 10 seconds (with throttling)
+            setInterval(async () => {
+                if (Date.now() - lastSaveTime > 5000) { // Only save if 5+ seconds since last save
+                    await saveGame();
+                }
+            }, 10000);
+        });
+
+        // Save on page unload
+        window.addEventListener('beforeunload', async (e) => {
+            await saveGame();
+        });
+
+        // Add enhanced animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOutRight {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+            @keyframes ripple {
+                to {
+                    transform: scale(2);
+                    opacity: 0;
+                }
+            }
+            @keyframes milestonePopup {
+                0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+                20% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+                100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            }
+            @keyframes glow {
+                0%, 100% { box-shadow: 0 0 20px rgba(76, 175, 80, 0.3); }
+                50% { box-shadow: 0 0 40px rgba(76, 175, 80, 0.6), 0 0 60px rgba(76, 175, 80, 0.4); }
+            }
+            .achievement.unlocked {
+                animation: glow 2s ease-in-out;
+            }
+            .power-up.purchased {
+                animation: glow 1s ease-in-out;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
